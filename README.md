@@ -1,2 +1,0 @@
-# RedditUP
-Reddit upvote
