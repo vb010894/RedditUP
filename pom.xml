@@ -12,6 +12,7 @@
     <artifactId>RedditUp</artifactId>
     <version>1.0</version>
     <properties>
+        <file.encoding>UTF-8</file.encoding>
         <java.version>11</java.version>
         <vaadin.version>23.0.3</vaadin.version>
     </properties>
@@ -105,10 +106,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
                         <exclude>
@@ -144,23 +141,23 @@
     <profiles>
         <profile>
             <id>production</id>
+            <properties>
+                <vaadin.productionMode>true</vaadin.productionMode>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>com.vaadin</groupId>
                         <artifactId>vaadin-maven-plugin</artifactId>
                         <version>${vaadin.version}</version>
+
                         <executions>
                             <execution>
-                                <id>frontend</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>prepare-frontend</goal>
                                     <goal>build-frontend</goal>
                                 </goals>
-                                <configuration>
-                                    <productionMode>true</productionMode>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

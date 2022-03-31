@@ -45,7 +45,8 @@ public class RootPage extends AppLayout {
         this.addMainLabel();
         this.addHeaders();
         this.addLogout();
-        this.setContent((com.vaadin.flow.component.Component) pagesRef.get("main"));
+        this.remove(this.getContent());
+        this.setContent(main);
     }
 
     /**
@@ -86,7 +87,7 @@ public class RootPage extends AppLayout {
      */
     private void addLogout() {
         Label out = new Label("LOGOUT");
-        out.getStyle().set("margin", "0 5% 0 5%");
+        out.getStyle().set("margin", "0 2% 0 2%");
         Span logout = new Span(VaadinIcon.EXIT_O.create(), out);
         logout.getStyle()
                 .set("margin", "0 0 0 2%")

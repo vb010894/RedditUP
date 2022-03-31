@@ -19,8 +19,8 @@ public class AdminRootPage extends RootPage {
     /**
      * Constructor.
      *
-     * @param main
-     * @param redditUsers
+     * @param main Main view
+     * @param redditUsers Reddit user view
      */
     @Autowired
     public AdminRootPage(MainWidget main, RedditUsersWidget redditUsers, UsersWidget users) {
@@ -29,5 +29,6 @@ public class AdminRootPage extends RootPage {
         userTab.setId("users");
         this.getPages().add(userTab);
         this.getPagesRef().put("users", users);
+        this.setContent(main);
     }
 }

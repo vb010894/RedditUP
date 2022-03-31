@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Route("/")
+@Route("")
 public class LoginPage extends VerticalLayout {
 
     private final DaoAuthenticationProvider provider;
@@ -43,9 +43,9 @@ public class LoginPage extends VerticalLayout {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserModel model = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if(model.getRoles().stream().anyMatch(role -> role.getName().equalsIgnoreCase("ROLE_ADMIN")))
-            getUI().get().getPage().setLocation("/admin/content");
+            getUI().ifPresent(ui -> ui.getPage().setLocation("/admin/content"));
         else
-            getUI().get().getPage().setLocation("/content");
+            getUI().ifPresent(ui -> ui.getPage().setLocation("/content"));
 
     }
 

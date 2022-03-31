@@ -1,6 +1,10 @@
 server:
   port: 8090
 spring:
+  messages:
+    basename: i18n/messages
+    cache-duration: -1
+    encoding: UTF-8
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
