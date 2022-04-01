@@ -70,7 +70,7 @@ public class MainWidget extends HorizontalLayout {
         urls.getStyle().set("border", "1px solid gray");
         this.urlsData = urls.setItems(new LinkedList<>());
         TextArea area = new TextArea();
-        area.setWidth("30%");
+        area.setWidthFull();
         HorizontalLayout tools = new HorizontalLayout();
         tools.setWidth("30%");
         Button add = new Button(VaadinIcon.ADD_DOCK.create(), event -> {
