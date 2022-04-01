@@ -18,6 +18,7 @@ import com.vbsoft.redditup.persistence.LogModel;
 import com.vbsoft.redditup.service.Upvoter;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -29,12 +30,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Scope("prototype")
 public class MainWidget extends HorizontalLayout {
 
+    /**
+     * Upvoter service.
+     */
     private final Upvoter upvoter;
-    private ListBoxListDataView<String> urlsData;
-    private Grid<LogModel> fLogGrid = new Grid<>(LogModel.class, true);
 
+    /**
+     * Urls data.
+     */
+    private ListBoxListDataView<String> urlsData;
+
+    /**
+     * Log grid.
+     */
+    private final Grid<LogModel> fLogGrid = new Grid<>(LogModel.class, true);
+
+    /**
+     * Constructor.
+     * @param service Upvoter service
+     */
     @Autowired
     public MainWidget(Upvoter service) {
         this.upvoter = service;
@@ -42,9 +59,12 @@ public class MainWidget extends HorizontalLayout {
         this.addGrid();
     }
 
+    /**
+     * Add action bar.
+     */
     private void addActions() {
         VerticalLayout starter = new VerticalLayout();
-        starter.setWidth("60%");
+        starter.setWidth("40%");
         MultiSelectListBox<String> urls = new MultiSelectListBox<>();
         urls.setWidthFull();
         urls.getStyle().set("border", "1px solid gray");
@@ -62,7 +82,7 @@ public class MainWidget extends HorizontalLayout {
             this.urlsData.refreshAll();
         });
 
-        Button start = new Button(VaadinIcon.START_COG.create(), event -> this.fireUpvote());
+        Button start = new Button(VaadinIcon.START_COG.create(), event -> new Thread(this::fireUpvote).start());
         Label urlLabel = new Label("URLs");
         tools.add(add, start, clear);
         tools.setJustifyContentMode(JustifyContentMode.EVENLY);
@@ -71,6 +91,9 @@ public class MainWidget extends HorizontalLayout {
         add(starter);
     }
 
+    /**
+     * Add log GRID.
+     */
     private void addGrid() {
         VerticalLayout grid = new VerticalLayout();
         ComboBox<String> logsFiles = new ComboBox<>();
@@ -78,11 +101,17 @@ public class MainWidget extends HorizontalLayout {
         logsFiles.setWidthFull();
         logsFiles.setItems(this.getLogs());
         logsFiles.addValueChangeListener(this::fillLog);
+        logsFiles.addAttachListener(attachEvent -> logsFiles.setItems(this.getLogs()));
         grid.add(logsFiles, this.fLogGrid);
-        grid.setWidth("40%");
+        grid.setWidth("60%");
         add(grid);
     }
 
+    /**
+     * Fill log grid.
+     * @param changeEvent combobox change value event.
+     */
+    @SuppressWarnings("rawtypes")
     private void fillLog(AbstractField.ComponentValueChangeEvent changeEvent) {
        String val = (String) changeEvent.getValue();
        File file = new File(val);
@@ -97,16 +126,24 @@ public class MainWidget extends HorizontalLayout {
 
     }
 
+    /**
+     * Get logs file.
+     * @return Logs path.
+     */
     private List<String> getLogs() {
         List<String> result = new LinkedList<>();
         File logsDirectory = new File("reddit/logs");
         if(logsDirectory.exists()) {
             File[] files = logsDirectory.listFiles();
-            Arrays.stream(files).parallel().forEach(f -> result.add(f.getAbsolutePath()));
+            if(files != null)
+                Arrays.stream(files).parallel().forEach(f -> result.add(f.getAbsolutePath()));
         }
         return result;
     }
 
+    /**
+     * Upvote.
+     */
     private void fireUpvote() {
         System.out.println(Arrays.toString(this.urlsData.getItems().toArray()));
         this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()));

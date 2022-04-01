@@ -167,7 +167,7 @@ public class Upvoter {
      * Add RESULT to log.
      * @param upCount Upvote count
      */
-    private void addResult(int upCount) {
+    private void addResult(String upCount) {
         LogModel model = new LogModel();
         model.setDescription("Task done");
         model.setSuccess(true);
@@ -198,6 +198,7 @@ public class Upvoter {
                     ChromeOptions options = new ChromeOptions();
                     options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost +  ":" + this.proxyPort);
                     Configuration.browserCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
+                    Configuration.headless = true;
 
                     try {
                         open(this.loginPage);
@@ -237,6 +238,7 @@ public class Upvoter {
         try {
             this.saveLog();
         } catch (IOException e) {
+            e.printStackTrace();
             throwsEx.add(e);
         }
 
@@ -245,6 +247,9 @@ public class Upvoter {
 
     private void saveLog() throws IOException {
         File logOutFile = new File("reddit/logs/" + new SimpleDateFormat("yyyy-dd-mm-hh-mm-ss").format(new Date()) + ".json");
+        if(!logOutFile.getParentFile().exists())
+            if(!logOutFile.getParentFile().mkdirs())
+                throw new IOException("Log path wasn't created. Path - " + logOutFile.getParentFile().getAbsolutePath());
         if(!logOutFile.exists())
             if(!logOutFile.createNewFile())
                 throw new IOException("Log file wasn't created. File - " + logOutFile.getAbsolutePath());
@@ -261,7 +266,7 @@ public class Upvoter {
      * @throws InterruptedException when driver's action has problem.
      */
     private void upvotePost(final String POST) throws InterruptedException {
-        int upCount = 0;
+        String upCount = "0";
         Thread.sleep(this.operationTimeout);
         open(POST);
         Thread.sleep(this.operationTimeout);
@@ -274,7 +279,7 @@ public class Upvoter {
 
             var counter = $(By.xpath(this.counterXPATH));
             if(counter.exists())
-                upCount = Integer.parseInt(counter.getText());
+                upCount = counter.getText();
 
             Thread.sleep(this.operationTimeout);
 

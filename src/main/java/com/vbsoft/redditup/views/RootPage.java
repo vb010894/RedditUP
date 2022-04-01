@@ -1,9 +1,12 @@
 package com.vbsoft.redditup.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
@@ -13,6 +16,7 @@ import com.vbsoft.redditup.views.widgets.MainWidget;
 import com.vbsoft.redditup.views.widgets.RedditUsersWidget;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -23,13 +27,21 @@ import java.util.Map;
  * @author Vboy
  * @version 1.0
  */
-@Route("content")
+@Route("/content")
 @Component
+@Scope("prototype")
 @PreserveOnRefresh
 public class RootPage extends AppLayout {
 
+    /**
+     * Page reference.
+     */
     @Getter
     private final Map<String, Object> pagesRef = new HashMap<>();
+
+    /**
+     * Navigation pages.
+     */
     @Getter
     private final Tabs pages = new Tabs();
 
@@ -86,14 +98,16 @@ public class RootPage extends AppLayout {
      * Add logout button.
      */
     private void addLogout() {
-        Label out = new Label("LOGOUT");
-        out.getStyle().set("margin", "0 2% 0 2%");
-        Span logout = new Span(VaadinIcon.EXIT_O.create(), out);
-        logout.getStyle()
-                .set("margin", "0 0 0 2%")
-                .set("width", "10%");
+        HorizontalLayout flexLayout = new HorizontalLayout();
+        flexLayout.setWidth("10%");
+        Button logout = new Button("Logout", VaadinIcon.EXIT.create());
+        logout.getStyle().set("background", "none");
+        logout.setWidthFull();
+        logout.setHeightFull();
         logout.addClickListener(event -> this.getUI().ifPresent(ui -> ui.getPage().setLocation("/logout")));
-        addToNavbar(out);
+        flexLayout.add(logout);
+        flexLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+        addToNavbar(flexLayout);
     }
 
 }

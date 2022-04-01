@@ -18,6 +18,7 @@ import com.vbsoft.redditup.service.UserRoleService;
 import com.vbsoft.redditup.service.UserService;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -27,6 +28,7 @@ import java.util.Collections;
  * @author Vboy
  */
 @Component
+@Scope("prototype")
 public class UsersWidget extends VerticalLayout {
 
     /**

@@ -17,6 +17,7 @@ import com.vbsoft.redditup.persistence.RedditUser;
 import com.vbsoft.redditup.service.RedditUserService;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
  * @author Vboy
  */
 @Component
+@Scope("prototype")
 public class RedditUsersWidget extends VerticalLayout {
 
     /**

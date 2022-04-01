@@ -1,17 +1,20 @@
 package com.vbsoft.redditup.persistence;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name = "Users")
-@Data
-@EqualsAndHashCode
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 public class UserModel implements UserDetails {
 
     @Id
@@ -19,10 +22,10 @@ public class UserModel implements UserDetails {
     private long id;
     private String username;
     private String password;
-    private boolean enabled;
-    private boolean accountNonLocked;
-    private boolean accountNonExpired;
-    private boolean credentialsNonExpired;
+    private boolean enabled = true;
+    private boolean accountNonLocked = true;
+    private boolean accountNonExpired = true;
+    private boolean credentialsNonExpired = true;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<UserRole> roles;
@@ -32,4 +35,16 @@ public class UserModel implements UserDetails {
         return this.roles;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        UserModel userModel = (UserModel) o;
+        return Objects.equals(id, userModel.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

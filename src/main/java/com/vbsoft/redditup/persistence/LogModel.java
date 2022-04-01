@@ -11,7 +11,7 @@ public class LogModel {
     private boolean success;
     private String logRef;
     private String description;
-    private int upCount = 0;
+    private String upCount = "0";
     private Date creationDate = new Date();
 
 }

@@ -9,21 +9,35 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Init API Controller.
+ * @author Vboy
+ */
 @RestController
 @CrossOrigin
 @RequestMapping("/apis/")
 public class RedditApiController {
 
+    /**
+     * User service.
+     */
     private final UserService serUsers;
 
+    /**
+     * Constructor.
+     * @param service User service
+     */
     @Autowired
     public RedditApiController(UserService service) {
         this.serUsers = service;
     }
 
+    /**
+     * Get request for add start user.
+     * @return Status
+     */
     @GetMapping
     public String createUsers() {
         UserModel userModel = new UserModel();
@@ -31,6 +45,7 @@ public class RedditApiController {
         userModel.setPassword("SamFisher010894@pc");
         userModel.setCredentialsNonExpired(true);
         userModel.setAccountNonExpired(true);
+        userModel.setAccountNonLocked(true);
         userModel.setEnabled(true);
 
         UserRole role = new UserRole();
