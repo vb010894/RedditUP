@@ -198,7 +198,7 @@ public class Upvoter {
                     ChromeOptions options = new ChromeOptions();
                     options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost +  ":" + this.proxyPort);
                     Configuration.browserCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
-                    Configuration.headless = true;
+                    Configuration.headless = Boolean.parseBoolean(System.getProperties().getOrDefault("upvoter.silent", "false").toString());
 
                     try {
                         open(this.loginPage);
