@@ -27,7 +27,7 @@ public class UserModel implements UserDetails {
     private boolean accountNonExpired = true;
     private boolean credentialsNonExpired = true;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private List<UserRole> roles;
 
     @Override

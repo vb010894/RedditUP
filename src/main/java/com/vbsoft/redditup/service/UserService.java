@@ -3,6 +3,7 @@ package com.vbsoft.redditup.service;
 import com.vbsoft.redditup.persistence.UserModel;
 import com.vbsoft.redditup.repository.UserModelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

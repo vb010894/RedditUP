@@ -182,16 +182,7 @@ public class UsersWidget extends VerticalLayout {
         }
 
         Button save = new Button("Save", event -> {
-            if(model != null) {
-                if(Strings.isBlank(password.getValue())) {
-                    Notification.show("Password is empty!");
-                } else {
-                    model.setUsername(username.getValue());
-                    model.setPassword(password.getValue());
-                    model.setRoles(Collections.singletonList(role.getValue()));
-                    this.saveUser(model);
-                }
-            } else {
+            UserModel target = model != null ? model : new UserModel();
                 if(
                         Strings.isBlank(username.getValue())
                                 & Strings.isBlank(password.getValue())
@@ -199,12 +190,13 @@ public class UsersWidget extends VerticalLayout {
                     Notification.show("Any field aren't filled");
                 } else {
                     UserModel newModel = this.getUser(
+                            target,
                         username.getValue(),
                         password.getValue(),
                         role.getValue());
                     this.saveUser(newModel);
                 }
-            }
+
         });
 
         form.add(title, username, password, role, save);
@@ -230,8 +222,8 @@ public class UsersWidget extends VerticalLayout {
      * @param role Role
      * @return User model
      */
-    private UserModel getUser(String username, String password, UserRole role) {
-        UserModel model = new UserModel();
+    private UserModel getUser(UserModel target, String username, String password, UserRole role) {
+        UserModel model = (target != null) ? target : new UserModel();
         model.setUsername(username);
         model.setPassword(password);
         model.setEnabled(true);
