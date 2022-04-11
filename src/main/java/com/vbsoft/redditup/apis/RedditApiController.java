@@ -1,8 +1,10 @@
 package com.vbsoft.redditup.apis;
 
+import com.vbsoft.redditup.persistence.TelegramBot;
 import com.vbsoft.redditup.persistence.UserModel;
 import com.vbsoft.redditup.persistence.UserRole;
 import com.vbsoft.redditup.service.UserService;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +55,16 @@ public class RedditApiController {
         role.setUsers(Collections.singletonList(userModel));
         userModel.setRoles(Collections.singletonList(role));
         this.serUsers.saveUser(userModel);
+        return "ok";
+    }
+    /**
+     * Get request for add start user.
+     * @return Status
+     */
+    @GetMapping("/telegram")
+    @Autowired
+    public String testTelegram(TelegramBot telegramBot) {
+        telegramBot.sendMessageToChat("Я готов к работе");
         return "ok";
     }
 }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.vbsoft.redditup.persistence.LogModel;
 import com.vbsoft.redditup.persistence.RedditUser;
+import com.vbsoft.redditup.persistence.TelegramBot;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -123,6 +125,9 @@ public class Upvoter {
     private final RedditUserService user;
 
 
+    private final TelegramBot bot;
+
+
     /**
      * Log data.
      */
@@ -134,8 +139,9 @@ public class Upvoter {
      * @param user Current user
      */
     @Autowired
-    public Upvoter(RedditUserService user) {
+    public Upvoter(RedditUserService user, TelegramBot bot) {
         this.user = user;
+        this.bot = bot;
     }
 
 
@@ -183,7 +189,10 @@ public class Upvoter {
      * @return List of  runtime throwable
      */
     public List<Throwable> upvote(final List<String> POSTS) {
+        this.bot.sendMessageToChat("Начало работы");
+        this.bot.sendMessageToChat("Посты:\n" + String.join("\n", POSTS));
         List<Throwable> throwsEx = new ArrayList<>();
+        Map<String, String> posts = new HashMap<>();
         this.user
                 .getUsers()
                 .stream().filter(RedditUser::isEnabled)
@@ -214,7 +223,7 @@ public class Upvoter {
                             this.addAction(String.format(
                                     "work with - '%s'",
                                     POST));
-                            upvotePost(POST);
+                            posts.put(POST, upvotePost(POST));
                         } catch (Exception e) {
                             this.addError(String.format(
                                     "message - '%s'",
@@ -236,6 +245,8 @@ public class Upvoter {
                 });
 
         try {
+            this.bot.sendMessageToChat("Работа закончена");
+            this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
             this.saveLog();
         } catch (IOException e) {
             e.printStackTrace();
@@ -265,7 +276,7 @@ public class Upvoter {
      * @param POST Current post
      * @throws InterruptedException when driver's action has problem.
      */
-    private void upvotePost(final String POST) throws InterruptedException {
+    private String upvotePost(final String POST) throws InterruptedException {
         String upCount = "0";
         Thread.sleep(this.operationTimeout);
         open(POST);
@@ -303,5 +314,6 @@ public class Upvoter {
 
         Thread.sleep(this.operationTimeout);
         this.addResult(upCount);
+        return upCount;
     }
 }

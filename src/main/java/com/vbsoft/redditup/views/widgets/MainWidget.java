@@ -82,7 +82,10 @@ public class MainWidget extends HorizontalLayout {
             this.urlsData.refreshAll();
         });
 
-        Button start = new Button(VaadinIcon.START_COG.create(), event -> new Thread(this::fireUpvote).start());
+        Button start = new Button(VaadinIcon.START_COG.create(), event -> {
+            new Thread(this::fireUpvote).start();
+            Notification.show("Upvoter запущен в работу");
+        });
         Label urlLabel = new Label("URLs");
         tools.add(add, start, clear);
         tools.setJustifyContentMode(JustifyContentMode.EVENLY);
