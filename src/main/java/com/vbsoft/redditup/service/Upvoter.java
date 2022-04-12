@@ -214,8 +214,15 @@ public class Upvoter {
                         $(By.xpath(this.usernameXPATH)).shouldBe(Condition.exist).setValue(usr.getUsername());
                         $(By.xpath(this.passwordXPATH)).shouldBe(Condition.exist).setValue(usr.getPassword());
                         $(By.xpath(this.submitXPATH)).submit();
+                        Thread.sleep(1000);
+                        SelenideElement incorrect = $(By.xpath(".//descendant::div[@class='AnimatedForm__errorMessage']"));
+                        if(incorrect.exists()) {
+                            this.bot.sendMessageToChat(String.format("Ошибка!!! Пользователь %s не смог выполнить логин.\nОшибка входа.\nПользователь будет преостановлен", usr.getUsername()));
+                            usr.setEnabled(false);
+                            this.user.addUser(usr);
+                        }
                     } catch (Exception e) {
-                        this.addError(e.getMessage());
+                        this.bot.sendMessageToChat("Ошибка!!! Пользователь %s не смог выполнить логин.\nСообщение - " + e.getMessage());
                     }
 
                     POSTS.forEach(POST -> {
@@ -225,23 +232,23 @@ public class Upvoter {
                                     POST));
                             posts.put(POST, upvotePost(POST));
                         } catch (Exception e) {
-                            this.addError(String.format(
-                                    "message - '%s'",
-                                    e.getMessage()
-                            ));
+                            this.bot.sendMessageToChat(String.format(
+                                    "Не удалось поставить upvote.\nПользователь - %s\nПост - %s.\nСообщение\n%s",
+                                    usr.getUsername(), POST, e.getMessage()));
                         }
                     });
 
-                    closeWindow();
-                    closeWebDriver();
                     try {
+                        closeWindow();
+                        closeWebDriver();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                         this.addError(String.format(
                                 "message - '%s'",
                                 e.getMessage()
                         ));
                     }
+                    this.bot.sendMessageToChat(String.format("Пользователь - %s закончил работу", usr.getUsername()));
                 });
 
         try {
@@ -309,7 +316,7 @@ public class Upvoter {
             if (subscribes.exists())
                 subscribes.click();
         } catch (InvalidStateException ex) {
-            this.addError(ex.getMessage());
+            this.bot.sendMessageToChat("Не удалось поставить upvote.\nСообщение - " + ex.getMessage());
         }
 
         Thread.sleep(this.operationTimeout);
