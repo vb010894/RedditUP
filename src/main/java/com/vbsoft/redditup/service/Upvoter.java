@@ -216,7 +216,7 @@ public class Upvoter {
                         $(By.xpath(this.submitXPATH)).submit();
                         Thread.sleep(1000);
                         SelenideElement incorrect = $(By.xpath(".//descendant::div[@class='AnimatedForm__errorMessage']"));
-                        if(incorrect.exists()) {
+                        if(incorrect.isDisplayed()) {
                             this.bot.sendMessageToChat(String.format("Ошибка!!! Пользователь %s не смог выполнить логин.\nОшибка входа.\nПользователь будет преостановлен", usr.getUsername()));
                             usr.setEnabled(false);
                             this.user.addUser(usr);
