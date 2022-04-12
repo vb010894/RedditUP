@@ -220,9 +220,11 @@ public class Upvoter {
                             this.bot.sendMessageToChat(String.format("Ошибка!!! Пользователь %s не смог выполнить логин.\nОшибка входа.\nПользователь будет преостановлен", usr.getUsername()));
                             usr.setEnabled(false);
                             this.user.addUser(usr);
+                            return;
                         }
                     } catch (Exception e) {
                         this.bot.sendMessageToChat("Ошибка!!! Пользователь %s не смог выполнить логин.\nСообщение - " + e.getMessage());
+                        return;
                     }
 
                     POSTS.forEach(POST -> {
