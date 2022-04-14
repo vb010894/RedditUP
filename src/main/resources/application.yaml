@@ -1,3 +1,4 @@
+
 server:
   port: 8090
 spring:
@@ -17,3 +18,9 @@ spring:
       naming:
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+management:
+  endpoint:
+    auditevents:
+      enabled: true
+    shutdown:
+      enabled: true

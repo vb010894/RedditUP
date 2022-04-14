@@ -241,6 +241,7 @@ public class Upvoter {
                     });
 
                     try {
+                        closeWebDriver();
                         closeWindow();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
                     } catch (Exception e) {
@@ -253,7 +254,6 @@ public class Upvoter {
                 });
 
         try {
-            closeWebDriver();
             this.bot.sendMessageToChat("Работа закончена");
             this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
             this.saveLog();
@@ -315,9 +315,9 @@ public class Upvoter {
                     up.click();
 
             SelenideElement subscribes = $(By.xpath(this.subscribeXPATH));
-            if (subscribes.exists())
+            if (subscribes.exists() && subscribes.isDisplayed())
                 subscribes.click();
-        } catch (InvalidStateException ex) {
+        } catch (Exception ex) {
             this.bot.sendMessageToChat("Не удалось поставить upvote.\nСообщение - " + ex.getMessage());
         }
 
