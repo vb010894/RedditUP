@@ -242,7 +242,6 @@ public class Upvoter {
 
                     try {
                         closeWindow();
-                        closeWebDriver();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
                     } catch (Exception e) {
                         this.addError(String.format(
@@ -254,6 +253,7 @@ public class Upvoter {
                 });
 
         try {
+            closeWebDriver();
             this.bot.sendMessageToChat("Работа закончена");
             this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
             this.saveLog();
