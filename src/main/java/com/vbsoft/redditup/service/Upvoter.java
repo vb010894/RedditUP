@@ -4,7 +4,6 @@ package com.vbsoft.redditup.service;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.ex.InvalidStateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.vbsoft.redditup.persistence.LogModel;
@@ -257,6 +256,7 @@ public class Upvoter {
             this.bot.sendMessageToChat("Работа закончена");
             this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
             this.saveLog();
+            Thread.currentThread().interrupt();
         } catch (IOException e) {
             e.printStackTrace();
             throwsEx.add(e);

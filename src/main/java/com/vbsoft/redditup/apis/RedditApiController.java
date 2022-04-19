@@ -3,8 +3,8 @@ package com.vbsoft.redditup.apis;
 import com.vbsoft.redditup.persistence.TelegramBot;
 import com.vbsoft.redditup.persistence.UserModel;
 import com.vbsoft.redditup.persistence.UserRole;
+import com.vbsoft.redditup.service.RedditUserService;
 import com.vbsoft.redditup.service.UserService;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Init API Controller.
@@ -27,13 +28,16 @@ public class RedditApiController {
      */
     private final UserService serUsers;
 
+    private final RedditUserService serReddit;
+
     /**
      * Constructor.
      * @param service User service
      */
     @Autowired
-    public RedditApiController(UserService service) {
+    public RedditApiController(UserService service, RedditUserService reddit) {
         this.serUsers = service;
+        this.serReddit = reddit;
     }
 
     /**
@@ -66,5 +70,14 @@ public class RedditApiController {
     public String testTelegram(TelegramBot telegramBot) {
         telegramBot.sendMessageToChat("Я готов к работе");
         return "ok";
+    }
+
+    @GetMapping("/reddit/users")
+    public String importUsers() {
+        return this.serReddit
+                .getUsers()
+                .parallelStream()
+                .map(user -> user.getUsername() + ":" + user.getPassword())
+                .collect(Collectors.joining("\r\n"));
     }
 }
