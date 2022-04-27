@@ -15,6 +15,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vbsoft.redditup.persistence.LogModel;
+import com.vbsoft.redditup.persistence.RedditUser;
+import com.vbsoft.redditup.persistence.TelegramBot;
+import com.vbsoft.redditup.service.RedditUserService;
 import com.vbsoft.redditup.service.Upvoter;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +41,8 @@ public class MainWidget extends HorizontalLayout {
      */
     private final Upvoter upvoter;
 
+    private final RedditUserService serReddit;
+
     /**
      * Urls data.
      */
@@ -48,13 +53,17 @@ public class MainWidget extends HorizontalLayout {
      */
     private final Grid<LogModel> fLogGrid = new Grid<>(LogModel.class, true);
 
+    private final TelegramBot bot;
+
     /**
      * Constructor.
      * @param service Upvoter service
      */
     @Autowired
-    public MainWidget(Upvoter service) {
+    public MainWidget(Upvoter service, RedditUserService reddit, TelegramBot bot) {
         this.upvoter = service;
+        this.serReddit = reddit;
+        this.bot = bot;
         this.addActions();
         this.addGrid();
     }
@@ -149,6 +158,20 @@ public class MainWidget extends HorizontalLayout {
      */
     private void fireUpvote() {
         System.out.println(Arrays.toString(this.urlsData.getItems().toArray()));
-        this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()));
+        long count = this.serReddit.getUserCount();
+        long pageCount = count / 20;
+        if(pageCount%20 > 0)
+            pageCount++;
+
+        long lastPage = 0;
+        for (int i = 0; i < pageCount; i++) {
+            long startPage = lastPage;
+            lastPage += 20;
+            List<RedditUser> users = this.serReddit.getUsers().subList((int) startPage, (int) lastPage);
+            this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()), users);
+            double percent = ((i + 1d)/pageCount) * 100;
+            this.bot.sendMessageToChat(String.format("Выполнено - %.3f процентов", percent));
+        }
+
     }
 }

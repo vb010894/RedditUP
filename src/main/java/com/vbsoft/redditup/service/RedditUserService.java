@@ -3,16 +3,24 @@ package com.vbsoft.redditup.service;
 import com.vbsoft.redditup.persistence.RedditUser;
 import com.vbsoft.redditup.repository.RedditUsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RedditUserService {
 
+    private final RedditUsersRepository repository;
+
     @Autowired
-    private RedditUsersRepository repository;
+    public RedditUserService(RedditUsersRepository repository) {
+        this.repository = repository;
+    }
 
 
     public List<RedditUser> getUsers() {
@@ -40,6 +48,15 @@ public class RedditUserService {
 
     public void deleteUser(RedditUser users) {
         this.repository.delete(users);
+    }
+
+    public long getUserCount() {
+        return this.repository.count();
+    }
+
+    public List<RedditUser> users(int start, int finish) {
+        Page<RedditUser> page = this.repository.findAll(PageRequest.of(start, finish));
+        return page.stream().parallel().collect(Collectors.toList());
     }
 
 }

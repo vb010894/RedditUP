@@ -1,9 +1,7 @@
 package com.vbsoft.redditup.service;
 
 
-import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.vbsoft.redditup.persistence.LogModel;
@@ -38,6 +36,7 @@ public class Upvoter {
      * Login page URL.
      */
     @Value("${search.login.url}")
+
     private String loginPage;
 
     /**
@@ -146,6 +145,7 @@ public class Upvoter {
 
     /**
      * Add ACTION to log.
+     *
      * @param message ACTION message
      */
     private void addAction(String message) {
@@ -158,6 +158,7 @@ public class Upvoter {
 
     /**
      * Add ERROR to log.
+     *
      * @param message Error message
      */
     private void addError(String message) {
@@ -170,6 +171,7 @@ public class Upvoter {
 
     /**
      * Add RESULT to log.
+     *
      * @param upCount Upvote count
      */
     private void addResult(String upCount) {
@@ -187,27 +189,26 @@ public class Upvoter {
      * @param POSTS Target posts
      * @return List of  runtime throwable
      */
-    public List<Throwable> upvote(final List<String> POSTS) {
+    public List<Throwable> upvote(final List<String> POSTS, final List<RedditUser> USERS) {
         this.bot.sendMessageToChat("Начало работы");
         this.bot.sendMessageToChat("Посты:\n" + String.join("\n", POSTS));
         List<Throwable> throwsEx = new ArrayList<>();
         Map<String, String> posts = new HashMap<>();
-        this.user
-                .getUsers()
+        USERS
                 .stream().filter(RedditUser::isEnabled)
                 .forEach(usr -> {
                     this.addAction(String.format(
                             "Login action \n User - '%s' \n password - '%s' \n proxy - %s",
                             usr.getUsername(),
                             usr.getPassword(),
-                            this.proxyHost +  ":" + this.proxyPort
+                            this.proxyHost + ":" + this.proxyPort
                     ));
 
                     ChromeOptions options = new ChromeOptions();
-                    options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost +  ":" + this.proxyPort);
+                    options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost + ":" + this.proxyPort);
                     Configuration.browserCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
                     Configuration.headless = Boolean.parseBoolean(System.getProperties().getOrDefault("upvoter.silent", "false").toString());
-
+                    Selenide.clearBrowserCookies();
                     try {
                         open(this.loginPage);
                         $(By.xpath(this.usernameXPATH)).shouldBe(Condition.exist).setValue(usr.getUsername());
@@ -215,7 +216,7 @@ public class Upvoter {
                         $(By.xpath(this.submitXPATH)).submit();
                         Thread.sleep(1000);
                         SelenideElement incorrect = $(By.xpath(".//descendant::div[@class='AnimatedForm__errorMessage']"));
-                        if(incorrect.isDisplayed()) {
+                        if (incorrect.isDisplayed()) {
                             this.bot.sendMessageToChat(String.format("Ошибка!!! Пользователь %s не смог выполнить логин.\nОшибка входа.\nПользователь будет преостановлен", usr.getUsername()));
                             usr.setEnabled(false);
                             this.user.addUser(usr);
@@ -240,7 +241,6 @@ public class Upvoter {
                     });
 
                     try {
-                        closeWebDriver();
                         closeWindow();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
                     } catch (Exception e) {
@@ -249,14 +249,13 @@ public class Upvoter {
                                 e.getMessage()
                         ));
                     }
-                    this.bot.sendMessageToChat(String.format("Пользователь - %s закончил работу", usr.getUsername()));
                 });
 
         try {
+            closeWebDriver();
             this.bot.sendMessageToChat("Работа закончена");
             this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
             this.saveLog();
-            Thread.currentThread().interrupt();
         } catch (IOException e) {
             e.printStackTrace();
             throwsEx.add(e);
@@ -267,11 +266,11 @@ public class Upvoter {
 
     private void saveLog() throws IOException {
         File logOutFile = new File("reddit/logs/" + new SimpleDateFormat("yyyy-dd-mm-hh-mm-ss").format(new Date()) + ".json");
-        if(!logOutFile.getParentFile().exists())
-            if(!logOutFile.getParentFile().mkdirs())
+        if (!logOutFile.getParentFile().exists())
+            if (!logOutFile.getParentFile().mkdirs())
                 throw new IOException("Log path wasn't created. Path - " + logOutFile.getParentFile().getAbsolutePath());
-        if(!logOutFile.exists())
-            if(!logOutFile.createNewFile())
+        if (!logOutFile.exists())
+            if (!logOutFile.createNewFile())
                 throw new IOException("Log file wasn't created. File - " + logOutFile.getAbsolutePath());
 
         ObjectMapper mapper = new JsonMapper();
@@ -292,19 +291,19 @@ public class Upvoter {
         Thread.sleep(this.operationTimeout);
         try {
             var gate = $(By.xpath(this.gateXPATH));
-            if(gate.exists())
+            if (gate.exists())
                 gate.click();
 
             Thread.sleep(this.operationTimeout);
 
             var counter = $(By.xpath(this.counterXPATH));
-            if(counter.exists())
+            if (counter.exists())
                 upCount = counter.getText();
 
             Thread.sleep(this.operationTimeout);
 
             var interest = $(By.xpath(this.interestXPATH));
-            if(interest.exists())
+            if (interest.exists())
                 interest.click();
 
             Thread.sleep(this.operationTimeout);
