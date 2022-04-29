@@ -2,6 +2,7 @@ package com.vbsoft.redditup.service;
 
 
 import com.codeborne.selenide.*;
+import com.codeborne.selenide.ex.InvalidStateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.vbsoft.redditup.persistence.LogModel;
@@ -205,9 +206,12 @@ public class Upvoter {
                     ));
 
                     ChromeOptions options = new ChromeOptions();
-                    options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost + ":" + this.proxyPort);
+                   // options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost + ":" + this.proxyPort);
                     Configuration.browserCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
                     Configuration.headless = Boolean.parseBoolean(System.getProperties().getOrDefault("upvoter.silent", "false").toString());
+                    Configuration.proxyHost = this.proxyHost;
+                    Configuration.proxyPort = Integer.parseInt(this.proxyPort);
+                    Configuration.proxyEnabled = true;
                     try {
                         open(this.loginPage);
                         $(By.xpath(this.usernameXPATH)).shouldBe(Condition.exist).setValue(usr.getUsername());
@@ -240,7 +244,7 @@ public class Upvoter {
                     });
 
                     try {
-                        closeWindow();
+                        Selenide.clearBrowserCookies();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
                     } catch (Exception e) {
                         this.addError(String.format(
@@ -251,6 +255,7 @@ public class Upvoter {
                 });
 
         try {
+            closeWindow();
             closeWebDriver();
             this.bot.sendMessageToChat("Работа закончена");
             this.bot.sendMessageToChat("Статистика:\n" + posts.entrySet().stream().map(entry -> entry.getKey() + "\n Upvotes:" + entry.getValue()).collect(Collectors.joining("\n")));
@@ -285,7 +290,7 @@ public class Upvoter {
      */
     private String upvotePost(final String POST) throws InterruptedException {
         String upCount = "0";
-        Thread.sleep(this.operationTimeout);
+        Thread.sleep(5000);
         open(POST);
         Thread.sleep(this.operationTimeout);
         try {
@@ -315,7 +320,7 @@ public class Upvoter {
             SelenideElement subscribes = $(By.xpath(this.subscribeXPATH));
             if (subscribes.exists() && subscribes.isDisplayed())
                 subscribes.click();
-        } catch (Exception ex) {
+        } catch (InvalidStateException | Exception ex) {
             this.bot.sendMessageToChat("Не удалось поставить upvote.\nСообщение - " + ex.getMessage());
         }
 
