@@ -26,6 +26,7 @@ public class RedditUser {
     private String username;
     private String password;
     private boolean enabled = true;
+    private String browser;
 
     @Override
     public boolean equals(Object o) {

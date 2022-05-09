@@ -190,13 +190,13 @@ public class Upvoter {
      * @param POSTS Target posts
      * @return List of  runtime throwable
      */
-    public List<Throwable> upvote(final List<String> POSTS, final List<RedditUser> USERS) {
+    public List<Throwable> upvote(final List<String> POSTS, final List<RedditUser> USERS, String browser) {
         this.bot.sendMessageToChat("Начало работы");
         this.bot.sendMessageToChat("Посты:\n" + String.join("\n", POSTS));
         List<Throwable> throwsEx = new ArrayList<>();
         Map<String, String> posts = new HashMap<>();
         USERS
-                .stream().filter(RedditUser::isEnabled)
+                .stream().filter(user -> user.isEnabled())
                 .forEach(usr -> {
                     this.addAction(String.format(
                             "Login action \n User - '%s' \n password - '%s' \n proxy - %s",
@@ -204,14 +204,14 @@ public class Upvoter {
                             usr.getPassword(),
                             this.proxyHost + ":" + this.proxyPort
                     ));
-
                     ChromeOptions options = new ChromeOptions();
-                   // options.addArguments("--disable-notifications --proxy-server=" + this.proxyHost + ":" + this.proxyPort);
+                    //Configuration.browser = usr.getBrowser();
                     Configuration.browserCapabilities.setCapability(ChromeOptions.CAPABILITY, options);
                     Configuration.headless = Boolean.parseBoolean(System.getProperties().getOrDefault("upvoter.silent", "false").toString());
                     Configuration.proxyHost = this.proxyHost;
                     Configuration.proxyPort = Integer.parseInt(this.proxyPort);
                     Configuration.proxyEnabled = true;
+
                     try {
                         open(this.loginPage);
                         $(By.xpath(this.usernameXPATH)).shouldBe(Condition.exist).setValue(usr.getUsername());
@@ -225,7 +225,7 @@ public class Upvoter {
                             this.user.addUser(usr);
                             return;
                         }
-                    } catch (Exception e) {
+                    } catch (Error | Exception e) {
                         this.bot.sendMessageToChat("Ошибка!!! Пользователь %s не смог выполнить логин.\nСообщение - " + e.getMessage());
                         return;
                     }
@@ -246,7 +246,7 @@ public class Upvoter {
                     try {
                         Selenide.clearBrowserCookies();
                         Thread.sleep(ThreadLocalRandom.current().nextLong(this.requestTimeoutMIN, this.requestTimeoutMAX));
-                    } catch (Exception e) {
+                    } catch (Error | Exception e) {
                         this.addError(String.format(
                                 "message - '%s'",
                                 e.getMessage()
@@ -320,7 +320,7 @@ public class Upvoter {
             SelenideElement subscribes = $(By.xpath(this.subscribeXPATH));
             if (subscribes.exists() && subscribes.isDisplayed())
                 subscribes.click();
-        } catch (InvalidStateException | Exception ex) {
+        } catch (Error | Exception ex) {
             this.bot.sendMessageToChat("Не удалось поставить upvote.\nСообщение - " + ex.getMessage());
         }
 

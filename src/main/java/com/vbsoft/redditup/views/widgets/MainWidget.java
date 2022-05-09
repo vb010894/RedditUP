@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Component
@@ -157,8 +158,21 @@ public class MainWidget extends HorizontalLayout {
      * Upvote.
      */
     private void fireUpvote() {
-        System.out.println(Arrays.toString(this.urlsData.getItems().toArray()));
         long count = this.serReddit.getUserCount();
+
+        String[] browsers = new String[] {"chrome", "firefox"};
+
+        this.serReddit
+                .getUsers()
+                .stream()
+                .parallel()
+                .filter(user -> user.getBrowser() == null)
+                .forEach(user -> {
+                    int rand = new Random().nextInt(browsers.length);
+                    user.setBrowser(browsers[rand]);
+                    this.serReddit.addUser(user);
+                });
+
         long pageCount = count / 20;
         if(pageCount%20 > 0)
             pageCount++;
@@ -168,7 +182,8 @@ public class MainWidget extends HorizontalLayout {
             long startPage = lastPage;
             lastPage += 20;
             List<RedditUser> users = this.serReddit.getUsers().subList((int) startPage, (int) lastPage);
-            this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()), users);
+            this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()), users, "chrome");
+            //this.upvoter.upvote(this.urlsData.getItems().collect(Collectors.toList()), users, "firefox");
             double percent = ((i + 1d)/pageCount) * 100;
             this.bot.sendMessageToChat(String.format("Выполнено - %.3f процентов", percent));
         }
